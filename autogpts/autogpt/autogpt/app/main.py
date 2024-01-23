@@ -31,6 +31,7 @@ from autogpt.config import (
     assert_config_has_openai_api_key,
 )
 from autogpt.core.resource.model_providers.openai import OpenAIProvider
+from autogpt.core.resource.model_providers.ffm import FFMProvider
 from autogpt.core.runner.client_lib.utils import coroutine
 from autogpt.logs.config import configure_chat_plugins, configure_logging
 from autogpt.logs.helpers import print_attribute, speak
@@ -353,7 +354,7 @@ async def run_auto_gpt_server(
         tts_config=config.tts_config,
     )
 
-    llm_provider = _configure_openai_provider(config)
+    llm_provider = _configure_ffm_provider(config)
 
     if install_plugin_deps:
         install_plugin_dependencies()
@@ -391,6 +392,24 @@ def _configure_openai_provider(config: Config) -> OpenAIProvider:
         logger=logging.getLogger("OpenAIProvider"),
     )
 
+def _configure_ffm_provider(config: Config) -> FFMProvider:
+    """Create a configured OpenAIProvider object.
+
+    Args:
+        config: The program's configuration.
+
+    Returns:
+        A configured FFMProvider object.
+    """
+    if config.ffm_credentials is None:
+        raise RuntimeError("FFM key is not configured")
+
+    ffm_settings = FFMProvider.default_settings.copy(deep=True)
+    ffm_settings.credentials = config.ffm_credentials
+    return FFMProvider(
+        settings=ffm_settings,
+        logger=logging.getLogger("FFMProvider"),
+    )
 
 def _get_cycle_budget(continuous_mode: bool, continuous_limit: int) -> int | float:
     # Translate from the continuous_mode/continuous_limit config

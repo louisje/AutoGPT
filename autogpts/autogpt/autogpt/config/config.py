@@ -20,6 +20,7 @@ from autogpt.core.resource.model_providers.openai import (
     OPEN_AI_CHAT_MODELS,
     OpenAICredentials,
 )
+from autogpt.core.resource.model_providers.ffm import FFMCredentials
 from autogpt.file_workspace import FileWorkspaceBackendName
 from autogpt.logs.config import LoggingConfig
 from autogpt.plugins.plugins_config import PluginsConfig
@@ -222,6 +223,9 @@ class Config(SystemSettings, arbitrary_types_allowed=True):
         default=AZURE_CONFIG_FILE,
         from_env=lambda: Path(f) if (f := os.getenv("AZURE_CONFIG_FILE")) else None,
     )
+
+    # FFM
+    ffm_credentials: Optional[FFMCredentials] = None
 
     # Github
     github_api_key: Optional[str] = UserConfigurable(from_env="GITHUB_API_KEY")
