@@ -137,7 +137,7 @@ class CompletionModelFunction(BaseModel):
 
     def fmt_line(self) -> str:
         params = ", ".join(
-            f"{name}: {p.type.value}" for name, p in self.parameters.items()
+            f"{name}: {p.type.value}" if p.type is not None else f"{name}: None" for name, p in self.parameters.items()
         )
         return f"{self.name}: {self.description}. Params: ({params})"
 
@@ -282,8 +282,8 @@ class EmbeddingModelResponse(ModelResponse):
 
     embedding: Embedding = Field(default_factory=list)
 
-    @classmethod
     @validator("completion_tokens_used")
+    @classmethod
     def _verify_no_completion_tokens_used(cls, v):
         if v > 0:
             raise ValueError("Embeddings should not have completion tokens used.")
@@ -322,8 +322,7 @@ class ChatModelResponse(ModelResponse, Generic[_T]):
     """Standard response struct for a response from a language model."""
 
     response: AssistantChatMessage
-    parsed_result: _T = None
-
+    parsed_result: Optional[_T] = None
 
 class ChatModelProvider(ModelProvider):
     @abc.abstractmethod
